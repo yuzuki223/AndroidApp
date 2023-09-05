@@ -5,6 +5,7 @@ import androidx.appcompat.app.AppCompatActivity;
 import android.os.Bundle;
 import android.text.Editable;
 import android.text.TextWatcher;
+import android.util.Log;
 import android.widget.TextView;
 
 import jp.ac.meijou.android.s221205037.databinding.ActivityMainBinding;
@@ -12,35 +13,37 @@ import jp.ac.meijou.android.s221205037.databinding.ActivityMainBinding;
 public class MainActivity extends AppCompatActivity {
 
     private ActivityMainBinding binding;
+    private PrefDataStore prefDataStore;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         binding = ActivityMainBinding.inflate(getLayoutInflater());
         setContentView(binding.getRoot());
+        prefDataStore = PrefDataStore.getInstance(this);
 
+        prefDataStore.getString("name")
+                .ifPresent(name -> binding.text.setText(name));
 
-        binding.button3.setOnClickListener(view -> {
+        binding.changeButton.setOnClickListener(view -> {
             var text = binding.editTextText.getText().toString();
             binding.text.setText(text);
         });
 
-        binding.editTextText.addTextChangedListener(new TextWatcher(){
-            @Override
-            public void beforeTextChanged(CharSequence charSequence, int i, int i1, int i2) {
-                // テキストが更新される直前に呼ばれる
-            }
-
-            @Override
-            public void onTextChanged(CharSequence charSequence, int i, int i1, int i2) {
-                // 文字を1つ入力された時に呼ばれる
-            }
-
-            @Override
-            public void afterTextChanged(Editable editable) {
-                binding.text.setText(editable.toString());
-            }
+        binding.saveButton.setOnClickListener(view -> {
+            var text = binding.editTextText.getText().toString();
+            prefDataStore.setString("name",text);
         });
+        Log.d("osada","onCreate text:"+binding.text.getText());
+    }
+
+    @Override
+    protected void onStart() {
+        super.onStart();
+        prefDataStore.getString("name")
+                .ifPresent(name -> binding.text.setText(name));
+        Log.d("osada","onStart text:"+binding.text.getText());
 
     }
+
 }
